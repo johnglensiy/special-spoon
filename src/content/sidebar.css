@@ -372,3 +372,27 @@ body.oly-body-shifted {
 .oly-sidebar:not(.oly-hidden) {
   animation: oly-slide-in 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
+
+/* ── Event Detail Header ──────────────────────── */
+.oly-event-header {
+  padding: 14px;
+  border-bottom: 1px solid var(--oly-border);
+  background: var(--oly-bg2);
+}
+
+.oly-event-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--oly-text);
+  line-height: 1.3;
+}
+
+.oly-event-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--oly-gold);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

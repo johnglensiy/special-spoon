@@ -2,7 +2,7 @@
 //  Olympic Results Sidebar — content script entry
 //  Injects a React app into the page
 // ─────────────────────────────────────────────
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './sidebar.css';
 
@@ -31,33 +31,42 @@ const STUB_DATA = {
     { sport: '🎯', event: 'Biathlon 10km Sprint (W)',     winner: 'L. Hauser (AUT)',    medal: 'gold'   },
     { sport: '⛸️', event: 'Figure Skating - Free Skate (W)', winner: 'A. Liu (USA)',   medal: 'gold'   },
   ],
+  freeSkate: {
+    event: 'Figure Skating — Free Skate (W)',
+    date: 'Feb 17, 2026',
+    venue: 'Milano MSK - Competition Rink',
+    results: [
+      { rank: 1, name: 'Alysa Liu',       country: '🇺🇸 USA', score: 158.32, medal: 'gold'   },
+      { rank: 2, name: 'Kaori Sakamoto',  country: '🇯🇵 JPN', score: 154.89, medal: 'silver' },
+      { rank: 3, name: 'Isabeau Levito',  country: '🇺🇸 USA', score: 149.44, medal: 'bronze' },
+      { rank: 4, name: 'Loena Hendrickx', country: '🇧🇪 BEL', score: 143.10, medal: 'none'   },
+      { rank: 5, name: 'Chaeyeon Kim',    country: '🇰🇷 KOR', score: 139.77, medal: 'none'   },
+      { rank: 6, name: 'Niina Petrokina', country: '🇪🇪 EST', score: 135.22, medal: 'none'   },
+    ]
+  }
 };
 // ──────────────────────────────────────────────────────────────────────────
+
+type Tab = 'medals' | 'events' | 'freeskate';
 
 // ── React App ──────────────────────────────────────────────────────────────
 function OlympicsSidebar() {
   const [visible, setVisible] = useState(true);
-  const [activeTab, setActiveTab] = useState<'medals' | 'events'>('medals');
+  const [activeTab, setActiveTab] = useState<Tab>('medals');
 
-  const hideSidebar = useCallback(() => {
+  function hideSidebar() {
     setVisible(false);
     document.body.classList.remove('oly-body-shifted');
-  }, []);
+  }
 
-  const showSidebar = useCallback(() => {
+  function showSidebar() {
     setVisible(true);
     document.body.classList.add('oly-body-shifted');
-  }, []);
+  }
 
-  const toggleSidebar = useCallback(() => {
+  function toggleSidebar() {
     visible ? hideSidebar() : showSidebar();
-  }, [visible, hideSidebar, showSidebar]);
-
-  // Sync body class on mount
-  // React.useEffect(() => {
-  //   document.body.classList.add('oly-body-shifted');
-  //   return () => document.body.classList.remove('oly-body-shifted');
-  // }, []);
+  }
 
   return (
     <>
@@ -91,7 +100,7 @@ function OlympicsSidebar() {
             className={`oly-tab${activeTab === 'medals' ? ' oly-tab-active' : ''}`}
             onClick={() => setActiveTab('medals')}
           >
-            🏅 Medal Table
+            🏅 Medals
           </button>
           <button
             className={`oly-tab${activeTab === 'events' ? ' oly-tab-active' : ''}`}
@@ -99,10 +108,16 @@ function OlympicsSidebar() {
           >
             📋 Results
           </button>
+          <button
+            className={`oly-tab${activeTab === 'freeskate' ? ' oly-tab-active' : ''}`}
+            onClick={() => setActiveTab('freeskate')}
+          >
+            ⛸️ Skate
+          </button>
         </div>
 
         {/* Medal Table */}
-        <div id="oly-panel-medals" className={`oly-panel${activeTab !== 'medals' ? ' oly-panel-hidden' : ''}`}>
+        <div className={`oly-panel${activeTab !== 'medals' ? ' oly-panel-hidden' : ''}`}>
           <table className="oly-table">
             <thead>
               <tr>
@@ -114,7 +129,7 @@ function OlympicsSidebar() {
                 <th>Tot</th>
               </tr>
             </thead>
-            <tbody id="oly-medal-body">
+            <tbody>
               {STUB_DATA.medalTable.map(r => (
                 <tr key={r.rank} className="oly-medal-row">
                   <td className="oly-rank">{r.rank}</td>
@@ -130,8 +145,8 @@ function OlympicsSidebar() {
         </div>
 
         {/* Recent Events */}
-        <div id="oly-panel-events" className={`oly-panel${activeTab !== 'events' ? ' oly-panel-hidden' : ''}`}>
-          <div className="oly-events-list" id="oly-events-list">
+        <div className={`oly-panel${activeTab !== 'events' ? ' oly-panel-hidden' : ''}`}>
+          <div className="oly-events-list">
             {STUB_DATA.recentEvents.map((e, i) => (
               <div key={i} className={`oly-event-item oly-medal-${e.medal}`}>
                 <span className="oly-event-sport">{e.sport}</span>
@@ -145,6 +160,37 @@ function OlympicsSidebar() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Figure Skating Free Skate */}
+        <div className={`oly-panel${activeTab !== 'freeskate' ? ' oly-panel-hidden' : ''}`}>
+          <div className="oly-event-header">
+            <div className="oly-event-title">{STUB_DATA.freeSkate.event}</div>
+            <div className="oly-event-meta">{STUB_DATA.freeSkate.date} · {STUB_DATA.freeSkate.venue}</div>
+          </div>
+          <table className="oly-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Athlete</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {STUB_DATA.freeSkate.results.map(r => (
+                <tr key={r.rank} className="oly-medal-row">
+                  <td className="oly-rank">
+                    {r.medal === 'gold' ? '🥇' : r.medal === 'silver' ? '🥈' : r.medal === 'bronze' ? '🥉' : r.rank}
+                  </td>
+                  <td className="oly-country">
+                    <div style={{ fontWeight: 600, fontSize: '12.5px' }}>{r.name}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--oly-text-dim)' }}>{r.country}</div>
+                  </td>
+                  <td className="oly-total">{r.score}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         {/* Footer */}
@@ -163,7 +209,7 @@ function OlympicsSidebar() {
 
 // ── Mount React app into the page ──────────────────────────────────────────
 function mount() {
-  if (document.getElementById('oly-root')) return; // already mounted
+  if (document.getElementById('oly-root')) return;
 
   const wrapper = document.createElement('div');
   wrapper.id = 'oly-root';
@@ -176,7 +222,6 @@ function mount() {
 // ── Auto-activate ──────────────────────────────────────────────────────────
 mount();
 
-// Re-check on SPA navigation
 const _pushState = history.pushState.bind(history);
 history.pushState = (...args) => { _pushState(...args); mount(); };
 window.addEventListener('popstate', mount);
