@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Olympics Data Extension",
+  "version": "1.0.0",
+  "description": "View static Olympics data directly in your browser extension.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Olympics Data"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ]
+}
