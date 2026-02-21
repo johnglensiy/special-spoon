@@ -2,7 +2,7 @@
 //  Olympic Results Sidebar — content script entry
 //  Injects a React app into the page
 // ─────────────────────────────────────────────
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import './sidebar.css';
 
@@ -37,11 +37,11 @@ const STUB_DATA = {
     venue: 'Milano MSK - Competition Rink',
     isLive: true,
     results: [
-      { rank: 1, name: 'Alysa Liu',       country: '🇺🇸 USA', score: 158.32, medal: 'gold',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/24749_HEADSHOT_2.png' },
-      { rank: 2, name: 'Kaori Sakamoto',  country: '🇯🇵 JPN', score: 154.89, medal: 'silver', profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/46263_HEADSHOT_1.png' },
-      { rank: 3, name: 'Isabeau Levito',  country: '🇺🇸 USA', score: 149.44, medal: 'bronze', profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/24784_HEADSHOT_1.png' },
-      { rank: 4, name: 'Loena Hendrickx', country: '🇧🇪 BEL', score: 143.10, medal: 'none',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/40931_HEADSHOT_1.png' },
-      { rank: 6, name: 'Niina Petrokina', country: '🇪🇪 EST', score: 135.22, medal: 'none',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/23048_HEADSHOT_1.png' },
+      { rank: 1, name: 'Alysa Liu',       country: '🇺🇸 USA', totalScore: 158.32, medal: 'gold',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/24749_HEADSHOT_2.png' },
+      { rank: 2, name: 'Kaori Sakamoto',  country: '🇯🇵 JPN', totalSscore: 154.89, medal: 'silver', profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/46263_HEADSHOT_1.png' },
+      { rank: 3, name: 'Isabeau Levito',  country: '🇺🇸 USA', totalScore: 149.44, medal: 'bronze', profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/24784_HEADSHOT_1.png' },
+      { rank: 4, name: 'Loena Hendrickx', country: '🇧🇪 BEL', totalScore: 143.10, medal: 'none',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/40931_HEADSHOT_1.png' },
+      { rank: 6, name: 'Niina Petrokina', country: '🇪🇪 EST', totalScore: 135.22, medal: 'none',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/23048_HEADSHOT_1.png' },
     ]
   }
 };
@@ -67,6 +67,21 @@ function OlympicsSidebar() {
   function toggleSidebar() {
     visible ? hideSidebar() : showSidebar();
   }
+
+  useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/results');
+        const data = await response.json();
+        // setResults(data);
+        STUB_DATA.freeSkate.results = data;
+      } catch (err) {
+        console.error('Failed to fetch results:', err);
+      }
+    };
+
+    fetchResults();
+  }, []);
 
   return (
     <>
@@ -187,7 +202,8 @@ function OlympicsSidebar() {
               {STUB_DATA.freeSkate.results.map(r => (
                 <tr key={r.rank} className="oly-medal-row">
                   <td className="oly-rank">
-                    {r.medal === 'gold' ? '🥇' : r.medal === 'silver' ? '🥈' : r.medal === 'bronze' ? '🥉' : r.rank}
+                    {/* {r.medal === 'gold' ? '🥇' : r.medal === 'silver' ? '🥈' : r.medal === 'bronze' ? '🥉' : r.rank} */}
+                    {r.rank}
                   </td>
                   <td className="oly-country">
                     <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '5px' }}>
@@ -198,7 +214,7 @@ function OlympicsSidebar() {
                       </div>                    
                     </div>
                   </td>
-                  <td className="oly-total">{r.score}</td>
+                  <td className="oly-total">{r.totalScore}</td>
                 </tr>
               ))}
             </tbody>

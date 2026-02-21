@@ -14,5 +14,4 @@ app.add_middleware(
 @app.get("/results")
 def get_results():
     data = scrape_data()
-    print(data)
     return data
