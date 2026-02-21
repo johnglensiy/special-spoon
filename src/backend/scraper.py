@@ -13,27 +13,33 @@ def scrape_data():
     driver.get("https://www.olympics.com/en/milano-cortina-2026/results/fsk/ss/w/singles-----------/fnl-/000100--/result")
     driver.maximize_window()
 
+    # Wait object for dynamically loaded content
     wait = WebDriverWait(driver, 10)
 
     try:
-        # wait for the custom element to appear
+        # Poll for live event
         live_skate_div = wait.until(EC.presence_of_element_located((By.TAG_NAME, "app-figureskating-live")))
-    except TimeoutException:
-        print("Element not found, exiting early")
-        driver.quit()
-        return None
+        prev_skate_container = live_skate_div.find_element(By.CLASS_NAME, "previous-competitor")
+        table = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".exec-planned-elems-container table")))
 
-    prev_skate_container = live_skate_div.find_element(By.CLASS_NAME, "previous-competitor")
-    table = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".exec-planned-elems-container table")))
-
-    rows = table.find_elements(By.TAG_NAME, 'tr')
-    for i in range(len(rows)):
         rows = table.find_elements(By.TAG_NAME, 'tr')
-        cells = rows[i].find_elements(By.TAG_NAME, 'td')
-        for cell in cells:
-            print(cell.text)
+        for i in range(len(rows)):
+            rows = table.find_elements(By.TAG_NAME, 'tr')
+            cells = rows[i].find_elements(By.TAG_NAME, 'td')
+            for cell in cells:
+                print(cell.text)
 
-    driver.quit()
-    return
+        driver.quit()
+        return
+    
+    except TimeoutException:
+        # Event is not live
+        print("Event is not live, polling for results table")
+        results_container = wait.until(EC.presence_of_element_located((By.TAG_NAME, "app-table")))
+
+
+    finally:
+        driver.quit()
+
 
 scrape_data()
