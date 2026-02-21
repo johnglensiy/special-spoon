@@ -35,13 +35,13 @@ const STUB_DATA = {
     event: 'Figure Skating — Free Skate (W)',
     date: 'Feb 17, 2026',
     venue: 'Milano MSK - Competition Rink',
+    isLive: true,
     results: [
-      { rank: 1, name: 'Alysa Liu',       country: '🇺🇸 USA', score: 158.32, medal: 'gold'   },
-      { rank: 2, name: 'Kaori Sakamoto',  country: '🇯🇵 JPN', score: 154.89, medal: 'silver' },
-      { rank: 3, name: 'Isabeau Levito',  country: '🇺🇸 USA', score: 149.44, medal: 'bronze' },
-      { rank: 4, name: 'Loena Hendrickx', country: '🇧🇪 BEL', score: 143.10, medal: 'none'   },
-      { rank: 5, name: 'Chaeyeon Kim',    country: '🇰🇷 KOR', score: 139.77, medal: 'none'   },
-      { rank: 6, name: 'Niina Petrokina', country: '🇪🇪 EST', score: 135.22, medal: 'none'   },
+      { rank: 1, name: 'Alysa Liu',       country: '🇺🇸 USA', score: 158.32, medal: 'gold',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/24749_HEADSHOT_2.png' },
+      { rank: 2, name: 'Kaori Sakamoto',  country: '🇯🇵 JPN', score: 154.89, medal: 'silver', profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/46263_HEADSHOT_1.png' },
+      { rank: 3, name: 'Isabeau Levito',  country: '🇺🇸 USA', score: 149.44, medal: 'bronze', profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/24784_HEADSHOT_1.png' },
+      { rank: 4, name: 'Loena Hendrickx', country: '🇧🇪 BEL', score: 143.10, medal: 'none',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/40931_HEADSHOT_1.png' },
+      { rank: 6, name: 'Niina Petrokina', country: '🇪🇪 EST', score: 135.22, medal: 'none',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/23048_HEADSHOT_1.png' },
     ]
   }
 };
@@ -167,6 +167,13 @@ function OlympicsSidebar() {
           <div className="oly-event-header">
             <div className="oly-event-title">{STUB_DATA.freeSkate.event}</div>
             <div className="oly-event-meta">{STUB_DATA.freeSkate.date} · {STUB_DATA.freeSkate.venue}</div>
+            {STUB_DATA.freeSkate.isLive && 
+              <div className="oly-event-islive">
+                <div className="oly-live-badge">
+                  <span className="oly-pulse"></span>
+                  Event in Progress
+                </div>
+              </div>}
           </div>
           <table className="oly-table">
             <thead>
@@ -183,8 +190,13 @@ function OlympicsSidebar() {
                     {r.medal === 'gold' ? '🥇' : r.medal === 'silver' ? '🥈' : r.medal === 'bronze' ? '🥉' : r.rank}
                   </td>
                   <td className="oly-country">
-                    <div style={{ fontWeight: 600, fontSize: '12.5px' }}>{r.name}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--oly-text-dim)' }}>{r.country}</div>
+                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '5px' }}>
+                      <img src={r.profilePicUrl} style={{ width: '40px', height: '48px', objectFit: 'cover' }}></img>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignSelf: 'stretch', justifyContent: 'flex-end' }}>
+                        <div style={{ fontWeight: 600, fontSize: '12.5px' }}>{r.name}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--oly-text-dim)' }}>{r.country}</div>                      
+                      </div>                    
+                    </div>
                   </td>
                   <td className="oly-total">{r.score}</td>
                 </tr>
