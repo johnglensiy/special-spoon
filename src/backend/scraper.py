@@ -18,6 +18,13 @@ def scrape_data():
     wait = WebDriverWait(driver, 10)
     data = []
 
+    # Dismiss cookie consent overlay
+    try:
+        accept_btn = wait.until(EC.element_to_be_clickable((By.ID, 'onetrust-accept-btn-handler')))
+        accept_btn.click()
+    except TimeoutException:
+        pass
+
     try:
         # Poll for live event
         live_skate_div = wait.until(EC.presence_of_element_located((By.TAG_NAME, "app-figureskating-live")))
@@ -60,8 +67,24 @@ def scrape_data():
 
             data.append(athlete)
 
+            # Expand row
+            expand_row_btn = row.find_element(By.TAG_NAME, 'button')
+            expand_row_btn.click()
+            expanded_row_container = wait.until(EC.presence_of_element_located((By.TAG_NAME, 'app-figureskating-table-expanded')))
+            
+            technical_elements_table = expanded_row_container.find_element(By.CSS_SELECTOR, '[aria-labelledby*=technical-element-table]')
+            technical_elements_table_rows = technical_elements_table.find_elements(By.TAG_NAME, 'tr')
+
+            for tech_elem_row in technical_elements_table_rows:
+                tech_cells = tech_elem_row.find_elements(By.TAG_NAME, 'td')
+                tech_cell_texts = [cell.text.strip() for cell in tech_cells]
+                print(tech_cell_texts)
+
         print(data)
         return data
         
     finally:
         driver.quit()
+
+if __name__ == '__main__':
+    scrape_data()
