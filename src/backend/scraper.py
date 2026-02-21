@@ -37,6 +37,11 @@ def scrape_data():
         print("Event is not live, polling for results table")
         results_container = wait.until(EC.presence_of_element_located((By.TAG_NAME, "app-table")))
 
+        expandable_rows = results_container.find_elements(By.CLASS_NAME, 'expandable-row')
+        for row in expandable_rows:
+            cells = row.find_elements(By.TAG_NAME, 'td')
+            for cell in cells:
+                print(cell.text)
 
     finally:
         driver.quit()
