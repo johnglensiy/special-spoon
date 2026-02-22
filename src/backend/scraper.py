@@ -47,7 +47,10 @@ def scrape_data():
         results_container = wait.until(EC.presence_of_element_located((By.TAG_NAME, "app-table")))
 
         expandable_rows = results_container.find_elements(By.CLASS_NAME, 'expandable-row')
+        num_rows = 0
         for row in expandable_rows:
+            if num_rows == 5:
+                break
             try:
                 profile_pic_src = row.find_element(By.CSS_SELECTOR, '.profile-picture img').get_attribute('src')
             except NoSuchElementException:
@@ -62,7 +65,8 @@ def scrape_data():
                 'country': cell_texts[1][-3:],
                 'name': cell_texts[2],
                 'totalScore': float(cell_texts[5]),
-                'profilePicUrl': profile_pic_src
+                'profilePicUrl': profile_pic_src,
+                'techElements': []
             }
 
             data.append(athlete)
@@ -78,7 +82,16 @@ def scrape_data():
             for tech_elem_row in technical_elements_table_rows:
                 tech_cells = tech_elem_row.find_elements(By.TAG_NAME, 'td')
                 tech_cell_texts = [cell.text.strip() for cell in tech_cells]
+
+                if tech_cell_texts:
+                    athlete['techElements'].append({
+                        'techElemNo': tech_cell_texts[0],
+                        'techElemName': tech_cell_texts[1],
+                        'techElemScore': tech_cell_texts[2]
+                    })
                 print(tech_cell_texts)
+            
+            num_rows += 1
 
         print(data)
         return data

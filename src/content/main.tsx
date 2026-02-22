@@ -7,6 +7,24 @@ import { createRoot } from 'react-dom/client';
 import './sidebar.css';
 
 console.log("Olympics content script loaded!");
+// ──────────────────────────────────────────────────────────────────────────
+
+type Tab = 'medals' | 'events' | 'freeskate';
+
+type TechElement = {
+  techElemNo: number;
+  techElemName: string;
+  techElemScore: number;
+}
+
+type Athlete = {
+  rank: number;
+  name: string;
+  country: string;
+  totalScore: number;
+  profilePicUrl: string;
+  techElements: TechElement[];
+}
 
 // ── Stub data ──────────────────────────────────────────────────────────────
 const STUB_DATA = {
@@ -36,23 +54,22 @@ const STUB_DATA = {
     date: 'Feb 17, 2026',
     venue: 'Milano MSK - Competition Rink',
     isLive: true,
-    results: [
-      { rank: 1, name: 'Alysa Liu',       country: '🇺🇸 USA', totalScore: 158.32, medal: 'gold',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/24749_HEADSHOT_2.png' },
-      { rank: 2, name: 'Kaori Sakamoto',  country: '🇯🇵 JPN', totalSscore: 154.89, medal: 'silver', profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/46263_HEADSHOT_1.png' },
-      { rank: 3, name: 'Isabeau Levito',  country: '🇺🇸 USA', totalScore: 149.44, medal: 'bronze', profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/24784_HEADSHOT_1.png' },
-      { rank: 4, name: 'Loena Hendrickx', country: '🇧🇪 BEL', totalScore: 143.10, medal: 'none',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/40931_HEADSHOT_1.png' },
-      { rank: 6, name: 'Niina Petrokina', country: '🇪🇪 EST', totalScore: 135.22, medal: 'none',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/23048_HEADSHOT_1.png' },
-    ]
+    results: [] as Athlete[]
+    // results: [
+    //   { rank: 1, name: 'Alysa Liu',       country: '🇺🇸 USA', totalScore: 158.32, medal: 'gold',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/24749_HEADSHOT_2.png', techElements: [] },
+    //   { rank: 2, name: 'Kaori Sakamoto',  country: '🇯🇵 JPN', totalSscore: 154.89, medal: 'silver', profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/46263_HEADSHOT_1.png', techElements: [] },
+    //   { rank: 3, name: 'Isabeau Levito',  country: '🇺🇸 USA', totalScore: 149.44, medal: 'bronze', profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/24784_HEADSHOT_1.png', techElements: [] },
+    //   { rank: 4, name: 'Loena Hendrickx', country: '🇧🇪 BEL', totalScore: 143.10, medal: 'none',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/40931_HEADSHOT_1.png', techElements: [] },
+    //   { rank: 6, name: 'Niina Petrokina', country: '🇪🇪 EST', totalScore: 135.22, medal: 'none',   profilePicUrl: 'https://wmr-static-assets.scd.dgplatform.net/wmr/static/_IMAGE/OWG2026/DT_PIC/23048_HEADSHOT_1.png', techElements: [] },
+    // ]
   }
 };
-// ──────────────────────────────────────────────────────────────────────────
-
-type Tab = 'medals' | 'events' | 'freeskate';
 
 // ── React App ──────────────────────────────────────────────────────────────
 function OlympicsSidebar() {
   const [visible, setVisible] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('medals');
+  const [expandedRank, setExpandedRank] = useState<number | null>(null);
 
   function hideSidebar() {
     setVisible(false);
@@ -200,22 +217,37 @@ function OlympicsSidebar() {
             </thead>
             <tbody>
               {STUB_DATA.freeSkate.results.map(r => (
-                <tr key={r.rank} className="oly-medal-row">
-                  <td className="oly-rank">
-                    {/* {r.medal === 'gold' ? '🥇' : r.medal === 'silver' ? '🥈' : r.medal === 'bronze' ? '🥉' : r.rank} */}
-                    {r.rank}
-                  </td>
-                  <td className="oly-country">
-                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '5px' }}>
-                      <img src={r.profilePicUrl} style={{ width: '40px', height: '48px', objectFit: 'cover' }}></img>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignSelf: 'stretch', justifyContent: 'flex-end' }}>
-                        <div style={{ fontWeight: 600, fontSize: '12.5px' }}>{r.name}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--oly-text-dim)' }}>{r.country}</div>                      
-                      </div>                    
-                    </div>
-                  </td>
-                  <td className="oly-total">{r.totalScore}</td>
-                </tr>
+                <>
+                  <tr key={r.rank} className="oly-medal-row">
+                    <td className="oly-rank">{r.rank}</td>
+                    <td className="oly-country">
+                      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '5px' }}>
+                        <img src={r.profilePicUrl} style={{ width: '40px', height: '48px', objectFit: 'cover' }}></img>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignSelf: 'stretch', justifyContent: 'flex-end' }}>
+                          <div style={{ fontWeight: 600, fontSize: '12.5px' }}>{r.name}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--oly-text-dim)' }}>{r.country}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="oly-total">{r.totalScore}</td>
+                    <td>
+                      <button onClick={() => setExpandedRank(expandedRank === r.rank ? null : r.rank)}>
+                        {expandedRank === r.rank ? '▲' : '▼'}
+                      </button>
+                    </td>
+                  </tr>
+                  {expandedRank === r.rank && (
+                    <tr>
+                      <td colSpan={4}>
+                        <div style={{ padding: '8px' }}>
+                          {r.techElements?.map((el, i) => (
+                            <div key={i}>{el.techElemNo}. {el.techElemName} — {el.techElemScore}</div>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </>
               ))}
             </tbody>
           </table>
